@@ -879,3 +879,34 @@ Feature: Simple Turns
             | waypoints | turns                   | route                                                                                   |
             | a,d       | depart,arrive           | Channing Street Northeast,Channing Street Northwest                                     |
             | a,h       | depart,turn left,arrive | Channing Street Northeast,North Capitol Street Northeast,North Capitol Street Northeast |
+
+    # http://www.openstreetmap.org/node/182805179
+    Scenario: Make Sharp Left at Traffic Signal
+        Given the node map
+            |   |   |   | g |   |   |   |
+            |   |   |   |   |   |   |   |
+            |   |   |   | f |   |   | y |
+            | i |   |   |   |   |   |   |
+            | j | k | a |   | b |   | x |
+            |   |   |   | e |   | c |   |
+            |   |   |   |   | d |   |   |
+            |   |   |   |   |   |   |   |
+            |   |   |   | h |   |   |   |
+
+        And the nodes
+            | node | highway         |
+            | f    | traffic_signals |
+
+        And the ways
+            | nodes | name                           | highway     | oneway |
+            | yf    | yf                             | trunk_link  | yes    |
+            | gfeh  | Centreville Road               | primary     |        |
+            | fi    | fi                             | trunk_link  | yes    |
+            | ij    | Bloomingdale Road              | residential |        |
+            | jkabx | Blue Star Memorial Hwy         | trunk       |        |
+            | bcde  | bcde                           | trunk_link  | yes    |
+            | kh    | kh                             | trunk_link  | yes    |
+
+        When I route I should get
+            | waypoints | turns                                        | route                                                         |
+            | a,h       | depart,off ramp right,turn sharp left,arrive | Blue Star Memorial Hwy,bcde,Centreville Road,Centreville Road |
