@@ -54,9 +54,9 @@ IF %ERRORLEVEL% NEQ 0 GOTO ERROR
 
 :SKIPDL
 
-IF EXIST osrm-deps ECHO deleting osrm-deps... && RD /S /Q osrm-deps
+IF EXIST osrm-deps ECHO deleting osrm-deps... && RD /S /Q osrm-deps || echo "Failed"
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
-IF EXIST build ECHO deleting build dir... && RD /S /Q build
+IF EXIST build ECHO deleting build dir... && RD /S /Q build || echo "Failed"
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
 
 7z -y x %DEPSPKG% | %windir%\system32\FIND "ing archive"
