@@ -31,6 +31,10 @@ struct RouteParametersGrammar : public BaseParametersGrammar<Iterator, Signature
         route_rule =
             (qi::lit("alternatives=") >
              qi::bool_[ph::bind(&engine::api::RouteParameters::alternatives, qi::_r1) = qi::_1]) |
+            (qi::lit("indoor=") >
+             qi::bool_[ph::bind(&engine::api::RouteParameters::indoor, qi::_r1) = qi::_1]) |
+            (qi::lit("stretch=") >
+             qi::double_[ph::bind(&engine::api::RouteParameters::alternative_stretch, qi::_r1) = qi::_1]) |
             (qi::lit("continue_straight=") >
              (qi::lit("default") |
               qi::bool_[ph::bind(&engine::api::RouteParameters::continue_straight, qi::_r1) =

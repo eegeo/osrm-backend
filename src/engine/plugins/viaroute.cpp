@@ -87,7 +87,7 @@ Status ViaRoutePlugin::HandleRequest(const api::RouteParameters &route_parameter
     {
         if (route_parameters.alternatives && facade.GetCoreSize() == 0)
         {
-            alternative_path(raw_route.segment_end_coordinates.front(), raw_route);
+            alternative_path(raw_route.segment_end_coordinates.front(), route_parameters.alternative_stretch, raw_route);
         }
         else
         {

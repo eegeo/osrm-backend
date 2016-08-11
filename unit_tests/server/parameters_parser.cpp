@@ -291,6 +291,64 @@ BOOST_AUTO_TEST_CASE(valid_route_urls)
     CHECK_EQUAL_RANGE(reference_10.hints, result_10->hints);
 }
 
+BOOST_AUTO_TEST_CASE(valid_indoor_route_url)
+{
+    std::vector<util::Coordinate> coords_1 = { { util::FloatLongitude{ 1 }, util::FloatLatitude{ 2 } },
+                                               { util::FloatLongitude{ 3 }, util::FloatLatitude{ 4 } } };
+    RouteParameters expected{};
+    expected.alternatives = false;
+    expected.alternative_stretch = 0.0;
+    expected.indoor = true;
+    expected.steps = true;
+    expected.annotations = true;
+    expected.coordinates = coords_1;
+    auto result =
+        parseParameters<RouteParameters>("1,2;3,4?steps=true&indoor=true&geometries=polyline&"
+            "overview=simplified&annotations=true");
+    BOOST_REQUIRE(result);
+    BOOST_CHECK_EQUAL(expected.steps, result->steps);
+    BOOST_CHECK_EQUAL(expected.indoor, result->indoor);
+    BOOST_CHECK_EQUAL(expected.alternatives, result->alternatives);
+    BOOST_CHECK_EQUAL(expected.alternative_stretch, result->alternative_stretch);
+    BOOST_CHECK_EQUAL(expected.geometries, result->geometries);
+    BOOST_CHECK_EQUAL(expected.annotations, result->annotations);
+    BOOST_CHECK_EQUAL(expected.overview, result->overview);
+    BOOST_CHECK_EQUAL(expected.continue_straight, result->continue_straight);
+    CHECK_EQUAL_RANGE(expected.bearings, result->bearings);
+    CHECK_EQUAL_RANGE(expected.radiuses, result->radiuses);
+    CHECK_EQUAL_RANGE(expected.coordinates, result->coordinates);
+    CHECK_EQUAL_RANGE(expected.hints, result->hints);
+}
+
+BOOST_AUTO_TEST_CASE(valid_alternative_route_url)
+{
+    std::vector<util::Coordinate> coords_1 = { { util::FloatLongitude{ 1 }, util::FloatLatitude{ 2 } },
+                                               { util::FloatLongitude{ 3 }, util::FloatLatitude{ 4 } } };
+    RouteParameters expected{};
+    expected.indoor = false;
+    expected.alternatives = true;
+    expected.alternative_stretch = 3.0;
+    expected.steps = true;
+    expected.annotations = true;
+    expected.coordinates = coords_1;
+    auto result =
+        parseParameters<RouteParameters>("1,2;3,4?steps=true&alternatives=true&stretch=3&geometries=polyline&"
+                                         "overview=simplified&annotations=true");
+    BOOST_REQUIRE(result);
+    BOOST_CHECK_EQUAL(expected.steps, result->steps);
+    BOOST_CHECK_EQUAL(expected.indoor, result->indoor);
+    BOOST_CHECK_EQUAL(expected.alternatives, result->alternatives);
+    BOOST_CHECK_EQUAL(expected.alternative_stretch, result->alternative_stretch);
+    BOOST_CHECK_EQUAL(expected.geometries, result->geometries);
+    BOOST_CHECK_EQUAL(expected.annotations, result->annotations);
+    BOOST_CHECK_EQUAL(expected.overview, result->overview);
+    BOOST_CHECK_EQUAL(expected.continue_straight, result->continue_straight);
+    CHECK_EQUAL_RANGE(expected.bearings, result->bearings);
+    CHECK_EQUAL_RANGE(expected.radiuses, result->radiuses);
+    CHECK_EQUAL_RANGE(expected.coordinates, result->coordinates);
+    CHECK_EQUAL_RANGE(expected.hints, result->hints);
+}
+
 BOOST_AUTO_TEST_CASE(valid_table_urls)
 {
     std::vector<util::Coordinate> coords_1 = {{util::FloatLongitude{1}, util::FloatLatitude{2}},

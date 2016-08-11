@@ -141,12 +141,12 @@ class RouteAPI : public BaseAPI
                  * The same exit will be emitted, though, if we should start routing at S, making
                  * the overall response consistent.
                  */
-                if (parameters.collapse_steps)
+                if (!parameters.indoor)
                 {
                     guidance::trimShortSegments(steps, leg_geometry);
                 }
                 leg.steps = guidance::postProcess(std::move(steps));
-                if (parameters.collapse_steps)
+                if (!parameters.indoor)
                 {
                     leg.steps = guidance::collapseTurns(std::move(leg.steps));
                 }

@@ -20,10 +20,11 @@ namespace engine
 {
 namespace routing_algorithms
 {
-
-const double VIAPATH_ALPHA = 5.0;   // alternative can add significant nonoverlapping distance
-const double VIAPATH_EPSILON = 1.00; // alternative at most twice as long
-const double VIAPATH_GAMMA = 0.85;   // alternative shares at most 85% with the shortest.
+// default values for strictness filter 
+// actual values are modified by stretch factor
+const double VIAPATH_ALPHA = 0.20;   // higher value means alternative can add more nonoverlapping distance
+const double VIAPATH_EPSILON = 0.15; // alternative at most this percent longer than shortest
+const double VIAPATH_GAMMA = 0.85;   // alternative shares at most this percent with the shortest.
 
 template <class DataFacadeT>
 class AlternativeRouting final
@@ -61,7 +62,7 @@ class AlternativeRouting final
 
     virtual ~AlternativeRouting() {}
 
-    void operator()(const PhantomNodes &phantom_node_pair, InternalRouteResult &raw_route_data)
+    void operator()(const PhantomNodes &phantom_node_pair, double stretch, InternalRouteResult &raw_route_data)
     {
         std::vector<NodeID> alternative_path;
         std::vector<NodeID> via_node_candidate_list;
@@ -256,14 +257,15 @@ class AlternativeRouting final
 
             const int approximated_sharing = fwd_sharing + rev_sharing;
             const int approximated_length = forward_heap1.GetKey(node) + reverse_heap1.GetKey(node);
+            double stretch_factor = 1. + stretch;
             const bool length_passes =
                 (approximated_length <
-                 upper_bound_to_shortest_path_distance * (1 + VIAPATH_EPSILON));
+                 upper_bound_to_shortest_path_distance * (1 + (VIAPATH_EPSILON * stretch_factor)));
             const bool sharing_passes =
-                (approximated_sharing <= upper_bound_to_shortest_path_distance * VIAPATH_GAMMA);
+                (approximated_sharing <= upper_bound_to_shortest_path_distance * (VIAPATH_GAMMA * stretch_factor));
             const bool stretch_passes =
                 (approximated_length - approximated_sharing) <
-                ((1. + VIAPATH_ALPHA) *
+                ((1. + (VIAPATH_ALPHA * stretch_factor)) *
                  (upper_bound_to_shortest_path_distance - approximated_sharing));
 
             if (length_passes && sharing_passes && stretch_passes)
