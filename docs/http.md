@@ -159,6 +159,10 @@ In addition to the [general options](#general-options) the following options are
 |Option      |Values                                    |Description                                                                    |
 |------------|------------------------------------------|-------------------------------------------------------------------------------|
 |alternatives|`true`, `false` (default)                 |Search for alternative routes and return as well.\*                            |
+|stretch     |integer (default = 0)                     |Set degree of looseness of constraints for alternatives. If no alternative is found, the stretch parameter can be added or increased. This is of particular use when searching for accessible indoor routes. 
+  |
+|indoor      |`true`, `false` (default)                 |Modify output for indoor routes. Default processing removes nodes which cover small distances; this option suppresses this step.
+  |
 |steps       |`true`, `false` (default)                 |Return route steps for each route leg                                          |
 |annotations |`true`, `false` (default)                 |Returns additional metadata for each coordinate along the route geometry.      |
 |geometries  |`polyline` (default), `geojson`           |Returned route geometry format (influences overview and per step)             |
