@@ -69,6 +69,11 @@ class AlternativeRouting final
         std::vector<SearchSpaceEdge> forward_search_space;
         std::vector<SearchSpaceEdge> reverse_search_space;
 
+        double stretch_factor = 1. + stretch;
+        double relative_length_tolerance = 1. + (VIAPATH_EPSILON * stretch_factor);
+        double relative_sharing_tolerance = VIAPATH_GAMMA * stretch_factor;
+        double relative_stretch_tolerance = 1. + (VIAPATH_ALPHA * stretch_factor);
+
         // Init queues, semi-expensive because access to TSS invokes a sys-call
         engine_working_data.InitializeOrClearFirstThreadLocalStorage(
             super::facade->GetNumberOfNodes());
@@ -135,6 +140,7 @@ class AlternativeRouting final
                                              reverse_heap1,
                                              &middle_node,
                                              &upper_bound_to_shortest_path_distance,
+                                             relative_length_tolerance,
                                              via_node_candidate_list,
                                              forward_search_space,
                                              min_edge_offset);
@@ -145,6 +151,7 @@ class AlternativeRouting final
                                               reverse_heap1,
                                               &middle_node,
                                               &upper_bound_to_shortest_path_distance,
+                                              relative_length_tolerance,
                                               via_node_candidate_list,
                                               reverse_search_space,
                                               min_edge_offset);
@@ -257,16 +264,17 @@ class AlternativeRouting final
 
             const int approximated_sharing = fwd_sharing + rev_sharing;
             const int approximated_length = forward_heap1.GetKey(node) + reverse_heap1.GetKey(node);
-            double stretch_factor = 1. + stretch;
+
             const bool length_passes =
                 (approximated_length <
-                 upper_bound_to_shortest_path_distance * (1 + (VIAPATH_EPSILON * stretch_factor)));
+                 upper_bound_to_shortest_path_distance * relative_length_tolerance);
+
             const bool sharing_passes =
-                (approximated_sharing <= upper_bound_to_shortest_path_distance * (VIAPATH_GAMMA * stretch_factor));
+                (approximated_sharing <= upper_bound_to_shortest_path_distance * relative_sharing_tolerance);
+
             const bool stretch_passes =
                 (approximated_length - approximated_sharing) <
-                ((1. + (VIAPATH_ALPHA * stretch_factor)) *
-                 (upper_bound_to_shortest_path_distance - approximated_sharing));
+                 relative_stretch_tolerance * (upper_bound_to_shortest_path_distance - approximated_sharing);
 
             if (length_passes && sharing_passes && stretch_passes)
             {
@@ -294,9 +302,9 @@ class AlternativeRouting final
                                              packed_shortest_path,
                                              min_edge_offset);
             const int maximum_allowed_sharing =
-                static_cast<int>(upper_bound_to_shortest_path_distance * VIAPATH_GAMMA);
+                static_cast<int>(upper_bound_to_shortest_path_distance * relative_sharing_tolerance);
             if (sharing_of_via_path <= maximum_allowed_sharing &&
-                length_of_via_path <= upper_bound_to_shortest_path_distance * (1 + VIAPATH_EPSILON))
+                length_of_via_path <= upper_bound_to_shortest_path_distance * relative_length_tolerance)
             {
                 ranked_candidates_list.emplace_back(node, length_of_via_path, sharing_of_via_path);
             }
@@ -314,6 +322,7 @@ class AlternativeRouting final
                                             reverse_heap2,
                                             candidate,
                                             upper_bound_to_shortest_path_distance,
+                                            relative_length_tolerance,
                                             &length_of_via_path,
                                             &s_v_middle,
                                             &v_t_middle,
@@ -623,6 +632,7 @@ class AlternativeRouting final
                                 QueryHeap &heap2,
                                 NodeID *middle_node,
                                 int *upper_bound_to_shortest_path_distance,
+                                double relative_length_tolerance,
                                 std::vector<NodeID> &search_space_intersection,
                                 std::vector<SearchSpaceEdge> &search_space,
                                 const EdgeWeight min_edge_offset) const
@@ -638,7 +648,7 @@ class AlternativeRouting final
         // << parentnode << "," << node << "), dist: " << distance;
 
         const int scaled_distance =
-            static_cast<int>((distance + min_edge_offset) / (1. + VIAPATH_EPSILON));
+            static_cast<int>((distance + min_edge_offset) / relative_length_tolerance);
         if ((INVALID_EDGE_WEIGHT != *upper_bound_to_shortest_path_distance) &&
             (scaled_distance > *upper_bound_to_shortest_path_distance))
         {
@@ -719,6 +729,7 @@ class AlternativeRouting final
                                      QueryHeap &new_reverse_heap,
                                      const RankedCandidateNode &candidate,
                                      const int length_of_shortest_path,
+                                     const double relative_length_tolerance,
                                      int *length_of_via_path,
                                      NodeID *s_v_middle,
                                      NodeID *v_t_middle,
@@ -794,7 +805,7 @@ class AlternativeRouting final
         {
             return false;
         }
-        const int T_threshold = static_cast<int>(VIAPATH_EPSILON * length_of_shortest_path);
+        const int T_threshold = static_cast<int>(relative_length_tolerance * length_of_shortest_path);
         int unpacked_until_distance = 0;
 
         std::stack<SearchSpaceEdge> unpack_stack;
