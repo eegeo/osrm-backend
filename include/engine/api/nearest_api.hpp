@@ -40,6 +40,11 @@ class NearestAPI final : public BaseAPI
                        [this](const PhantomNodeWithDistance &phantom_with_distance) {
                            auto waypoint = MakeWaypoint(phantom_with_distance.phantom_node);
                            waypoint.values["distance"] = phantom_with_distance.distance;
+                           std::string building_id = facade.GetPronunciationForID(phantom_with_distance.phantom_node.name_id);
+                           if (!building_id.empty())
+                           {
+                               waypoint.values["building_id"] = building_id;
+                           }
                            return waypoint;
                        });
 
