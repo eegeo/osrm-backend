@@ -17,11 +17,12 @@ namespace engine
 bool Hint::IsValid(const util::Coordinate new_input_coordinates,
                    const datafacade::BaseDataFacade &facade) const
 {
-    // Rounding in the i/o roundtrip can cause these to be off-by-one
-    auto is_same_input_coordinate = std::abs(static_cast<int32_t>(new_input_coordinates.lon - phantom.input_location.lon)) < 2 &&
-        std::abs(static_cast<int32_t>(new_input_coordinates.lat - phantom.input_location.lat)) < 2;
-    return is_same_input_coordinate && phantom.IsValid(facade.GetNumberOfNodes()) &&
-           facade.GetCheckSum() == data_checksum;
+    // On trunk (https://github.com/Project-OSRM/osrm-backend/blob/master/src/engine/hint.cpp) this is
+    // checking new_input_coordinates against phantom.input_location.  The input_location seems to be
+    // relative to a single request, whereas we are using the hint to identify a location returned by
+    // a "nearest" request in the context of a later route request.  In our case we don't care about 
+    // matching the input coordinates exactly, and I/O rounding was making this fragile anyway.
+    return phantom.IsValid(facade.GetNumberOfNodes()) && facade.GetCheckSum() == data_checksum;
 }
 
 std::string Hint::ToBase64() const

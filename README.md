@@ -1,3 +1,20 @@
+## About this fork
+
+This project was forked to extend the OSRM service to support indoor routing.
+Changes are primarily around repurposing metadata to communicate building and floor identifiers, adding parameterization of some constants, and preventing collapse of steps required for indoor navigation.
+
+To build, run `build-local.bat`.  Note after the first build you can uncomment the `SET LOCAL_DEV=1` line to avoid re-downloading dependencies.  The results are written to `osrm_Release.zip`.
+
+To run on windows, you will need to unzip the package and edit the `.stxxl.txt` file to something like `disk=D:\Temp\stxxl,100,memory`
+
+To process a data file and run the server against it:
+```
+osrm-extract data.osm -p profile-name.lua
+osrm-contract data.osrm
+osrm-routed data.osrm --port port_no
+```
+The WRLD routing service defines a `profile-indoor.lua` and `profile-outdoor.lua` which configure input processing.
+
 ## About
 
 The Open Source Routing Machine is a high performance routing engine written in C++11 designed to run on OpenStreetMap data.
