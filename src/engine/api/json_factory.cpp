@@ -50,7 +50,7 @@ const constexpr char *turn_type_names[] = {
     "roundabout",      "roundabout", "rotary",   "rotary",      "roundabout turn",
     "roundabout turn", "use lane",   "invalid",  "invalid",     "invalid",
     "invalid",         "invalid",    "invalid",  "invalid",     "invalid",
-    "invalid"};
+    "invalid",         "continue"};
 
 const constexpr char *waypoint_type_names[] = {"invalid", "arrive", "depart"};
 
